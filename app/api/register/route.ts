@@ -12,9 +12,7 @@ export async function POST(req: Request) {
     if (!email || !password) {
       return new Response(
         JSON.stringify({ error: "Missing email or password" }),
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
@@ -25,16 +23,14 @@ export async function POST(req: Request) {
     if (existingUser) {
       return new Response(
         JSON.stringify({ error: "Email already registered" }),
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const token = randomUUID();
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         name,
         email,
@@ -54,7 +50,7 @@ export async function POST(req: Request) {
       );
     } catch (emailError) {
       console.error("Email failed to send:", emailError);
-      // optionally: rollback user creation if email must succeed
+      // Optionally: rollback user creation if email is critical
     }
 
     return new Response(JSON.stringify({ message: "User created" }), {
